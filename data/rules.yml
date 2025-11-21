@@ -1,0 +1,195 @@
+version: "3.1"
+ 
+rules:
+  - rule: Say hello and ask for info collection
+    steps:
+    - intent: greet
+    - action: utter_greet
+ 
+  - rule: Handle bot challenge
+    steps:
+    - intent: bot_challenge
+    - action: utter_iamabot
+ 
+  - rule: Say goodbye
+    steps:
+    - intent: goodbye
+    - action: action_exit
+ 
+  - rule: Handle adaptive card request
+    steps:
+    - intent: request_contact_form
+    - action: action_contact_info_adaptive_card
+ 
+  - rule: Handle contact info collection
+    steps:
+    - intent: collect_info
+    - action: action_reset_slots
+    - action: info_form
+    - active_loop: info_form
+ 
+  - rule: Submit info form
+    condition:
+    - active_loop: info_form
+    steps:
+    - action: info_form
+    - active_loop: null
+    - slot_was_set:
+      - requested_slot: null
+    - action: utter_submit
+    - action: action_send_to_agent
+    - action: utter_ask_continue
+ 
+  - rule: Continue after info collection - Yes
+    steps:
+    - action: utter_ask_continue
+    - intent: affirm
+    - action: action_continue_or_exit
+ 
+  - rule: Continue after info collection - No
+    steps:
+    - action: utter_ask_continue
+    - intent: deny
+    - action: action_exit
+ 
+  - rule: Direct yes after greet
+    steps:
+    - action: utter_greet
+    - intent: affirm
+    - action: action_reset_slots
+    - action: info_form
+    - active_loop: info_form
+ 
+  - rule: Direct no after greet
+    steps:
+    - action: utter_greet
+    - intent: deny
+    - action: action_live_agent
+ 
+  - rule: Handle standalone deny
+    steps:
+    - intent: deny
+    - action: action_exit
+ 
+  - rule: Handle out of scope with enhanced detection
+    steps:
+    - intent: out_of_scope
+    - action: action_out_of_scope
+ 
+  - rule: Handle nlu fallback with better routing
+    steps:
+    - intent: nlu_fallback
+    - action: action_out_of_scope
+ 
+  - rule: Handle view stored info
+    steps:
+    - intent: view_stored_info
+    - action: action_view_stored_info
+ 
+  - rule: Handle information correction
+    steps:
+    - intent: correct_info
+    - action: action_correct_info
+ 
+  - rule: Handle bot capabilities inquiry
+    steps:
+    - intent: bot_capabilities
+    - action: action_bot_capabilities
+ 
+  - rule: Handle general queries with LLM
+    steps:
+    - intent: ask_anything
+    - action: action_live_agent
+ 
+  - rule: Handle file upload requests
+    steps:
+    - intent: upload_file
+    - action: action_upload_file
+ 
+  - rule: Handle image analysis requests
+    steps:
+    - intent: analyze_image
+    - action: action_analyze_image
+ 
+  - rule: Handle document processing requests
+    steps:
+    - intent: process_document
+    - action: action_process_document
+ 
+  - rule: Handle survey generation requests
+    steps:
+    - intent: generate_survey
+    - action: action_generate_dynamic_survey
+ 
+  - rule: Handle survey collection start
+    steps:
+    - intent: start_survey_collection
+    - action: action_start_survey_collection
+ 
+  - rule: Submit survey form
+    condition:
+    - active_loop: survey_form
+    steps:
+    - action: survey_form
+    - active_loop: null
+    - slot_was_set:
+      - requested_slot: null
+    - action: action_submit_survey_responses
+ 
+  - rule: Handle contact card submission  
+    steps:
+    - intent: submit_contact_info
+    - action: action_handle_contact_card_submission
+ 
+  - rule: Handle web search requests
+    steps:
+    - intent: web_search
+    - action: action_mcp_unified
+ 
+  - rule: Handle weather requests
+    steps:
+    - intent: get_weather
+    - action: action_mcp_unified
+ 
+  - rule: Handle news requests
+    steps:
+    - intent: get_news
+    - action: action_mcp_unified
+ 
+  - rule: Handle news search requests
+    steps:
+    - intent: search_news
+    - action: action_mcp_unified
+ 
+  - rule: Handle mathematical calculations
+    steps:
+    - intent: mathematical_calculation
+    - action: action_live_agent
+  - rule: Respond to document searches
+    steps:
+    - intent: ask_docs
+    - action: action_vector_search
+  - rule: Handle brochure requests
+    steps:
+    - intent: create_brochure
+    - action: action_generate_brochure
+
+  - rule: Handle adaptive card generation requests
+    steps:
+    - intent: generate_adaptive_card
+    - action: action_generate_adaptive_card
+
+  - rule: Handle data agent queries
+    steps:
+      - intent: data_agent_query
+      - action: action_orchestrator_query
+
+  - rule: Handle leave request
+    steps:
+    - intent: request_leave
+    - action: action_mcp_unified
+
+  - rule: Process leave submission
+    steps:
+    - intent: submit_leave_form
+    - action: action_process_leave_submission

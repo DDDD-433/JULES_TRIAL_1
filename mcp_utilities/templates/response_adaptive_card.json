@@ -1,0 +1,187 @@
+{
+  "leave_calculator_with_dates_card": {
+    "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+    "type": "AdaptiveCard",
+    "version": "1.5",
+    "body": [
+      {
+        "type": "Container",
+        "style": "emphasis",
+        "items": [
+          {
+            "type": "TextBlock",
+            "text": "{status_message}",
+            "color": "{status_style}",
+            "weight": "Bolder",
+            "size": "Small",
+            "wrap": true
+          },
+          {
+            "type": "TextBlock",
+            "text": " {leave_type} balance after leave : {remaining_hours} ({remaining_days}).",
+            "isSubtle": true,
+            "size": "Small",
+            "wrap": true,
+            "spacing": "None"
+          }
+        ],
+        "bleed": true,
+        "separator": true,
+        "spacing": "None"
+      },
+      {
+        "type": "Container",
+        "items": [
+          {
+            "type": "TextBlock",
+            "text": "Current Balance",
+            "weight": "Bolder",
+            "size": "Small",
+            "spacing": "Small"
+          },
+          {
+            "type": "ColumnSet",
+            "columns": [
+              {
+                "type": "Column",
+                "width": "stretch",
+                "items": [
+                  {
+                    "type": "TextBlock",
+                    "text": "Sick Leave",
+                    "horizontalAlignment": "Center",
+                    "size": "Small",
+                    "isSubtle": true
+                  },
+                  {
+                    "type": "TextBlock",
+                    "text": "{sick_hours} Hrs",
+                    "horizontalAlignment": "Center",
+                    "weight": "Bolder",
+                    "size": "Medium"
+                  }
+                ]
+              },
+              {
+                "type": "Column",
+                "width": "stretch",
+                "items": [
+                  {
+                    "type": "TextBlock",
+                    "text": "Vacation Leave",
+                    "horizontalAlignment": "Center",
+                    "size": "Small",
+                    "isSubtle": true
+                  },
+                  {
+                    "type": "TextBlock",
+                    "text": "{vacation_hours} Hrs",
+                    "horizontalAlignment": "Center",
+                    "weight": "Bolder",
+                    "size": "Medium"
+                  }
+                ]
+              }
+            ],
+            "spacing": "Small"
+          },
+          {
+            "type": "Container",
+            "spacing": "Small",
+            "items": [
+              {
+                "type": "TextBlock",
+                "text": "Request Summary",
+                "weight": "Bolder",
+                "size": "Medium",
+                "wrap": true,
+                "spacing": "Medium"
+              },
+              {
+                "type": "RichTextBlock",
+                "inlines": [
+                  {
+                    "type": "TextRun",
+                    "text": "Leave Type: ",
+                    "weight": "Bolder",
+                    "color": "Default"
+                  },
+                  {
+                    "type": "TextRun",
+                    "text": "{leave_type}"
+                   
+                  }
+                ]
+              },
+              {
+                "type": "RichTextBlock",
+                "inlines": [
+                  {
+                    "type": "TextRun",
+                    "text": "Date Range: ",
+                    "weight": "Bolder",
+                    "color": "Default"
+                  },
+                  {
+                    "type": "TextRun",
+                    "text": "{start_date} - {end_date}"
+                  }
+                ]
+              },
+              {
+                "type": "RichTextBlock",
+                "inlines": [
+                  {
+                    "type": "TextRun",
+                    "text": "Business Days: ",
+                    "weight": "Bolder",
+                    "color": "Default"
+                  },
+                  {
+                    "type": "TextRun",
+                    "text": "{requested_days}"
+                  }
+                ]
+              },
+              {
+                "type": "RichTextBlock",
+                "inlines": [
+                  {
+                    "type": "TextRun",
+                    "text": "Hours Required: ",
+                    "weight": "Bolder",
+                    "color": "Default"
+                  },
+                  {
+                    "type": "TextRun",
+                    "text": "{required_hours}"
+                  }
+                ]
+              },
+              {
+                "type": "RichTextBlock",
+                "inlines": [
+                  {
+                    "type": "TextRun",
+                    "text": "Hours Remaining: ",
+                    "weight": "Bolder",
+                    "color": "Default"
+                  },
+                  {
+                    "type": "TextRun",
+                    "text": "{remaining_hours}"
+                   
+                  }
+                ]
+              }
+            ]
+          }
+         
+         
+        ],
+        "spacing": "Medium"
+      }
+    ],
+    "actions": []
+  }
+}

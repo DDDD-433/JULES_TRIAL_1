@@ -1,0 +1,577 @@
+version: "3.1"
+ 
+nlu:
+- intent: greet
+  examples: |
+    - hi
+    - hello
+    - hey
+    - good morning
+    - good evening
+    - hi there
+    - greetings
+    - sup
+    - howdy
+    - yo
+    - hiya
+    - morning
+    - evening
+    - afternoon
+    - hi alizha
+    - hello alizha
+    - hey alizha
+    - hi bot
+    - hello bot
+    - wassup
+    - what's up
+ 
+- intent: collect_info
+  examples: |
+    - collect my info
+    - collect my details
+    - I'd like to register
+    - take my information
+    - register me
+    - let me give you info
+    - I want to provide my information
+    - collect information
+    - collect my information
+    - provide my details
+    - I want to give my information
+    - I would like to provide my information
+    - I would like to give my info
+    - please collect my info
+    - please collect my information
+    - can you collect my info
+    - start info collection
+    - start information collection
+    - open contact form
+    - launch contact form
+    - contact form please
+    - fill my details
+    - take my details
+    - I need to register
+    - sign me up
+    - start registration
+    - enter my details
+ 
+- intent: request_contact_form
+  examples: |
+    - show me the contact form
+    - display the contact form
+    - can I get a form to enter my details?
+    - give me the contact form
+    - send me the contact card
+    - I need to enter my contact info
+    - show me a form for my information
+    - show adaptive card
+    - display adaptive card
+    - adaptive card
+    - show card
+    - display contact card
+    - form
+    - card
+    - display form
+    - show form
+ 
+- intent: inform
+  examples: |
+    - [John Smith](person_name)
+    - [Sarah Johnson](person_name)
+    - [Mike Wilson](person_name)
+    - [Alice Brown](person_name)
+    - [siraj fahmida senthil](person_name)
+    - [+1234567890](phone_number)
+    - [555-123-4567](phone_number)
+    - [9876543210](phone_number)
+    - [7899745544](phone_number)
+    - [123 Main Street](address)
+    - [Downtown area](address)
+    - [456 Oak Avenue, New York](address)
+    - [789 Pine Street, Los Angeles](address)
+    - [321 Elm Road, Chicago](address)
+    - [my name is John Doe](person_name)
+    - [I'm Jane Smith](person_name)
+    - [my phone is 123-456-7890](phone_number)
+    - [phone number is 9876543210](phone_number)
+    - [my address is 123 main street](address)
+    - [I live at 456 Oak Avenue](address)
+    - [I stay at downtown area](address)
+    - [my home is in the suburbs](address)
+    - [I'm from California](address)
+ 
+- intent: affirm
+  examples: |
+    - yes
+    - yeah
+    - correct
+    - that's right
+    - yes please
+    - yep
+    - sure
+    - ok
+    - okay
+    - alright
+    - absolutely
+    - definitely
+    - of course
+    - right
+    - y
+    - ya
+    - true
+    - that is right
+    - yes I do
+    - go ahead
+ 
+- intent: deny
+  examples: |
+    - no
+    - nope
+    - not really
+    - no thanks
+    - that's wrong
+    - incorrect
+    - nah
+    - not interested
+    - no way
+    - never
+    - not now
+    - maybe later
+    - not right now
+    - skip
+    - pass
+    - no ty
+    - no thank you
+    - nah thanks
+    - nope thanks
+    - no thanks
+    - i meant no
+    - just no
+    - simply no
+ 
+- intent: goodbye
+  examples: |
+    - goodbye
+    - bye
+    - see you later
+    - thanks bye
+    - exit
+    - quit
+    - done
+    - thank you goodbye
+    - see ya
+    - farewell
+    - take care
+ 
+- intent: bot_capabilities
+  examples: |
+    - what can you do
+    - what are your capabilities
+    - what do you do
+    - how can you help
+    - what services do you offer
+    - what are you able to do
+    - tell me what you can do
+    - what functions do you have
+    - what are your features
+    - how can you assist me
+    - what help can you provide
+ 
+- intent: out_of_scope  
+  examples: |
+    - what's the weather like
+    - tell me a joke
+    - what time is it
+    - what's 2+2
+    - how do I fix my car
+    - what movies are playing
+    - recommend a book
+    - help me with math
+    - what's for dinner
+    - sing me a song
+    - what's your favorite color
+ 
+- intent: bot_challenge
+  examples: |
+    - are you a bot?
+    - are you a human?
+    - am I talking to a bot?
+    - what are you?
+    - who are you?
+    - are you real?
+    - you are a bot
+    - are you artificial intelligence?
+ 
+- intent: view_stored_info
+  examples: |
+    - show stored info
+    - view stored records
+    - show my data
+    - display collected information
+    - show all records
+    - list stored data
+    - view my information
+    - show collected data
+    - show records
+    - show what you have stored
+    - display stored info
+    - show stored information
+    - view stored info
+    - display records
+    - show me stored data
+    - view stored records
+    - show information
+    - display my info
+    - what data do you have
+    - what information is stored
+ 
+- intent: correct_info
+  examples: |
+    - name is wrong
+    - phone is wrong
+    - address is wrong
+    - that's not right
+    - incorrect name
+    - wrong phone number
+    - wrong address
+    - fix my name
+    - change my phone
+    - update my address
+    - correct that
+    - that's incorrect
+    - update my info
+    - change my details
+ 
+- intent: ask_anything
+  examples: |
+    - tell me about quantum physics
+    - what is artificial intelligence
+    - explain machine learning
+    - tell me about lincoln
+    - tell me about usa
+    - tell me about india
+    - what is quantum computing
+    - how does photosynthesis work
+    - what is the capital of France
+    - tell me about basketball
+    - who is lebron james
+    - tell me about football
+    - what is messi like
+    - tell me about technology
+    - explain blockchain
+    - what's the latest news
+    - tell me something interesting
+    - tell me how india gained independence
+    - how did ai start off
+    - how did artificial intelligence begin
+    - give me a summary of the industrial revolution
+    - what happened during the industrial revolution
+    - give me information about
+    - what do you know about
+    - can you explain
+    - help me understand
+    - tell me facts about
+    - what about trump
+    - tell me about bitcoin
+    - educate me about
+    - brief me on
+    - give python code to add two numbers
+    - write a Python function that reverses a string
+    - show a JavaScript function to sum an array
+    - explain this error: TypeError: cannot read properties of undefined
+    - help me debug this stack trace
+    - provide a regex to extract emails
+    - write a SQL query to get top 5 customers by revenue
+    - how do I fix a KeyError in Python
+    - can you refactor this code
+    - what are the company policies
+    - tell me the company policies
+    - list our company policies
+    - summarize the company policies
+    - provide confidential hr data
+    - what are employee details for akash
+    - share employee information for arpan
+    - company policies and guidelines
+    - security guidelines and work hours
+    - what are the security guidelines
+    - list employees in the data science department
+    - who works in the data science department
+    - employees in the data science team
+    - name the employees from data science
+    - tell me about Akash’s role and department
+    - what is Akash’s department
+    - which department does Akash work in
+    - details about Akash’s role
+    - give me Akash’s role information
+    - tell me about Arpan’s role and department
+ 
+- intent: upload_file
+  examples: |
+    - upload file
+    - upload a file
+    - I want to upload a file
+    - upload image
+    - upload document
+    - I have a file to upload
+    - attach file
+    - send file
+    - share file
+    - file upload
+ 
+- intent: analyze_image
+  examples: |
+    - analyze image
+    - analyze this image
+    - what's in this image
+    - describe this image
+    - tell me about this picture
+    - what do you see in this image
+    - examine this image
+    - look at this image
+    - check this image
+ 
+- intent: process_document
+  examples: |
+    - process document
+    - analyze document
+    - read document
+    - extract text from document
+    - what's in this document
+    - summarize document
+    - process PDF
+    - read PDF
+    - analyze PDF
+    - document analysis
+ 
+- intent: generate_survey
+  examples: |
+    - generate survey
+    - create survey
+    - make a survey
+    - build a survey
+    - I need a survey
+    - I want a survey
+    - create feedback form
+    - generate questionnaire
+    - make questionnaire
+    - survey generation
+    - dynamic survey
+    - intelligent survey
+ 
+- intent: start_survey_collection
+  examples: |
+    - start survey collection
+    - begin the survey
+    - start the survey please
+    - let's start the survey
+    - take the survey now
+    - answer the survey questions
+    - start the survey session
+    - I'm ready to start the survey
+    - proceed with the survey
+    - start the questionnaire
+    - run the survey
+    - start answering the survey
+
+- intent: submit_contact_info
+  examples: |
+    - submit_contact_info
+    - submit form
+    - here is my information
+    - I've filled out the form
+ 
+- intent: web_search
+  examples: |
+    - search for information about artificial intelligence
+    - look up the latest technology trends
+    - find information about quantum computing
+    - search the web for python programming
+    - can you search for climate change news
+    - look up information about machine learning
+    - find details about blockchain technology
+    - search for recent developments in AI
+    - web search for renewable energy
+    - look for information about space exploration
+ 
+- intent: get_weather
+  examples: |
+    - what's the weather in New York
+    - weather forecast for London
+    - how's the weather in Mumbai
+    - temperature in Tokyo
+    - weather in Paris today
+    - what's the temperature in Delhi
+    - weather forecast for San Francisco
+    - how hot is it in Dubai
+    - weather conditions in Sydney
+    - temperature in Chicago
+ 
+- intent: get_news
+  examples: |
+    - show me the latest news
+    - what's happening in the news
+    - top headlines today
+    - recent news updates
+    - current events
+    - today's news
+    - breaking news
+    - latest headlines
+    - what's new in the world
+    - news updates
+ 
+- intent: search_news
+  examples: |
+    - news about artificial intelligence
+    - search for technology news
+    - find news about climate change
+    - news on space exploration
+    - search for sports news
+    - find business news
+    - news about cryptocurrency
+    - search for health news
+    - find political news
+    - news about entertainment
+    - latest news about climate change
+    - show me news about renewable energy
+    - give me the latest headlines about artificial intelligence
+    - news updates on the economy
+    - search news about the olympics
+    - show news on stock market trends
+    - find the latest news on cybersecurity
+    - news about electric vehicles
+    - show me today's headlines about technology
+    - look for news about climate policy
+- intent: generate_adaptive_card
+  examples: |
+    - Create a quarterly business performance dashboard showing revenue growth, customer acquisition metrics, top performing teams, and key product launches. Include charts and action buttons to view detailed reports.
+    - Design an event registration card for our annual tech conference with speaker lineup, session schedule, venue details, and a registration form collecting name, email, company, and role.
+    - Build an adaptive card summarizing weekly sales performance with KPIs, trend charts, regional highlights, and a button to download the full report.
+    - Produce a project status update card with milestones, risks, team assignments, and a form to submit blockers.
+    - Generate a marketing campaign launch card featuring goals, target audience, timeline, creative assets, and CTA buttons.
+    - I need an adaptive card with product release overview, feature highlights, customer testimonials, and quick links to documentation.
+ 
+- intent: mathematical_calculation
+  examples: |
+    - calculate compound interest on $10,000 at 5% for 3 years
+    - solve this equation: 2x² + 5x - 3 = 0
+    - what is the compound interest formula
+    - calculate simple interest
+    - solve quadratic equation
+    - find the roots of the equation
+    - calculate percentage increase
+    - what's 15% of 200
+    - solve for x in the equation
+    - calculate loan interest
+    - compute mortgage payment
+    - mathematical calculation
+    - math problem
+    - algebra help
+    - calculate this for me
+    - do the math
+    - solve this math problem
+    - help me with calculations
+    - work out this equation
+- intent: ask_docs
+  examples: |
+    - find docs about qdrant
+    - can you search the knowledge base for faiss
+    - look up documentation on the retrieval service
+    - show me snippets about vector search
+    - find docs about rasa
+    - search documentation for employee policies
+    - look up internal docs about akash
+
+- intent: create_brochure
+  examples: |
+    - we need a brochure for the heritage show
+    - can you design a coffee table book layout
+    - create a brochure that highlights our cultural program
+    - help me build a coffee table book spread
+    - I want an adaptive card brochure for the ministry
+    - prepare a brochure template we can share
+    - generate a coffee table book style presentation
+    - can you suggest templates for a brochure
+    - we need new brochure options for the museum
+    - show me coffee table book designs
+    - build a brochure about our artists residency
+    - create a brochure inviting my team to a birthday party on October 19 2025
+    - make an adaptive card brochure to invite four colleagues to a celebration
+    - design a brochure invitation for our office birthday on 19th October 2025
+    - prepare a brochure that uses images from Google for a cultural event
+    - build a coffee table style brochure for a team appreciation dinner
+    - craft a brochure announcing the staff recognition evening
+    - generate a brochure template to invite the marketing team to a workshop
+    - can you create a brochure for our executive retreat with photos
+    - produce a brochure invite for the leadership brunch next week
+
+- intent: data_agent_query
+  examples: |
+    - What tax changes were announced in the 2025 budget speech of India?
+    - How much allocation was made for healthcare in the 2025 Indian budget?
+    - what are the priorities of the budget speech?
+    - What will happen in the greenfields of Bihar?
+    - What are the changes in income tax slabs in the 2025 India budget?
+    - What is the allocation for defense in the 2025 budget speech?
+    - Tell me about the budget speech 2025
+    - Who gave the budget speech?
+    - When was the budget speech given?
+    - What changes were announced in the 2025 budget with respect to tax brakcets?
+    - Name some text processing techniques ?
+    - What language is used by the AI Innovation Team ?
+    - Show me the total sales revenue for each month in the year 2013.
+    - What was the average value of a sales order for each month in 2012?
+    - How many new employees were hired each year? Show me the trend.
+    - What was the total amount we spent on purchase orders each month during 2013?
+    - Which product categories had the highest sales in 2012?
+    - What is the total sales revenue for each region in 2013?
+    - Which employees have the highest sales in 2013?
+    - Generate a pie chart that shows the number of products for each category.
+    - Give me information about the employees who started in 2012.
+    - What is the average salary of employees in each department?
+    - How many products are there in each category?
+    - Show me the number of purchase orders we created each month for the first half of 2014.
+
+- intent: request_leave
+  examples: |
+    - I want to apply for leave
+    - I wanna take leave today
+    - I wanna take a leave today
+    - I need a leave tomorrow
+    - need to take leave next week
+    - can I take a day off
+    - I want to take a vacation
+    - I need time off
+    - check my leave balance
+    - can you help with a leave request
+    - I need to request time off
+    - help me see if I have enough vacation hours
+    - show me the leave request form
+    - I wish to submit a leave application
+    - start the leave approval process
+    - apply for sick leave
+    - request casual leave
+    - I want to take sick leave
+    - I want to take a leave
+    - need to apply for leave
+    - can you help me with leave
+    - I need leave from tomorrow
+    - want to take leave from monday
+    - planning to take leave next month
+    - I need a vacation
+    - request for leave
+    - help me apply for leave
+    - I want to take time off work
+    - need to take a day off tomorrow
+    - can I get leave for today
+    - I want to take leave for a week
+    - planning my vacation leave
+    - need to submit leave request
+
+- intent: submit_leave_form
+  examples: |
+    - submitting the leave form now
+    - here is my leave request
+    - I have filled the leave card
+    - sending my leave details
+    - please process this leave submission
+    - the leave form is complete

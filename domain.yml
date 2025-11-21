@@ -1,0 +1,286 @@
+version: "3.1"
+ 
+intents:
+  - greet
+  - goodbye
+  - affirm
+  - deny
+  - bot_challenge
+  - bot_capabilities
+  - collect_info
+  - request_contact_form
+  - submit_contact_info
+  - inform
+  - out_of_scope
+  - view_stored_info
+  - correct_info
+  - ask_anything
+  - upload_file
+  - analyze_image
+  - process_document
+  - create_brochure
+  - generate_survey
+  - start_survey_collection
+  - web_search
+  - get_weather
+  - get_news
+  - search_news
+  - mathematical_calculation
+  - nlu_fallback
+  - ask_docs
+  - generate_adaptive_card
+  - data_agent_query
+  - request_leave
+  - submit_leave_form
+ 
+entities:
+  - person_name
+  - phone_number
+  - address
+  - contact_name
+  - contact_email
+  - contact_message
+ 
+slots:
+  person_name:
+    type: text
+    influence_conversation: false
+    mappings:
+      - type: from_entity
+        entity: person_name
+      - type: from_text
+        conditions:
+          - active_loop: info_form
+            requested_slot: person_name
+ 
+  phone_number:
+    type: text
+    influence_conversation: false
+    mappings:
+      - type: from_entity
+        entity: phone_number
+      - type: from_text
+        conditions:
+          - active_loop: info_form
+            requested_slot: phone_number
+ 
+  address:
+    type: text
+    influence_conversation: false
+    mappings:
+      - type: from_text
+        conditions:
+          - active_loop: info_form
+            requested_slot: address
+ 
+  contact_name:
+    type: text
+    influence_conversation: false
+    mappings: []
+ 
+  contact_email:
+    type: text
+    influence_conversation: false
+    mappings: []
+ 
+  contact_message:
+    type: text
+    influence_conversation: false
+    mappings: []
+ 
+  info_completed:
+    type: bool
+    initial_value: false
+    influence_conversation: false
+    mappings:
+      - type: custom
+ 
+  uploaded_file_path:
+    type: text
+    influence_conversation: false
+    mappings:
+      - type: custom
+ 
+  file_analysis_result:
+    type: text
+    influence_conversation: false
+    mappings:
+      - type: custom
+ 
+  dynamic_form_schema:
+    type: text
+    influence_conversation: false
+    mappings:
+      - type: custom
+ 
+  survey_question_1:
+    type: text
+    influence_conversation: false
+    mappings:
+      - type: from_text
+        conditions:
+          - active_loop: survey_form
+            requested_slot: survey_question_1
+ 
+  survey_question_2:
+    type: text
+    influence_conversation: false
+    mappings:
+      - type: from_text
+        conditions:
+          - active_loop: survey_form
+            requested_slot: survey_question_2
+ 
+  survey_question_3:
+    type: text
+    influence_conversation: false
+    mappings:
+      - type: from_text
+        conditions:
+          - active_loop: survey_form
+            requested_slot: survey_question_3
+ 
+  current_survey_question_1:
+    type: text
+    influence_conversation: false
+    mappings:
+      - type: custom
+ 
+  current_survey_question_2:
+    type: text
+    influence_conversation: false
+    mappings:
+      - type: custom
+ 
+  current_survey_question_3:
+    type: text
+    influence_conversation: false
+    mappings:
+      - type: custom
+ 
+  conversation_context:
+    type: text
+    influence_conversation: false
+    mappings:
+      - type: custom
+
+  brochure_plan:
+    type: text
+    influence_conversation: false
+    mappings:
+      - type: custom
+
+  last_headlines_query:
+    type: text
+    influence_conversation: false
+    mappings:
+      - type: custom
+
+  last_headlines_timestamp:
+    type: any
+    influence_conversation: false
+    mappings:
+      - type: custom
+ 
+  preferred_model:
+    type: text
+    influence_conversation: false
+    mappings:
+      - type: custom
+ 
+  requested_slot:
+    type: text
+    influence_conversation: false
+    mappings:
+      - type: custom
+ 
+  namespace:
+    type: text
+    influence_conversation: false
+    mappings:
+      - type: custom
+ 
+  top_k:
+    type: any
+    influence_conversation: false
+    mappings:
+      - type: custom
+ 
+responses:
+  utter_greet:
+    - text: "Hello! I'm Alizha, your advanced AI assistant. I can help you collect personal information, analyze images, process documents, generate surveys, or answer any questions you have. What would you like to do?"
+ 
+  utter_iamabot:
+    - text: "I am a bot, powered by Rasa."
+ 
+  utter_ask_person_name:
+    - text: "What's your full name?"
+ 
+  utter_ask_phone_number:
+    - text: "What's your phone number?"
+ 
+  utter_ask_address:
+    - text: "What's your complete address?"
+ 
+  utter_submit:
+    - text: "Thank you! I have received your information."
+ 
+  utter_ask_continue:
+    - text: "Would you like to do anything else? (Yes/No)"
+ 
+  utter_ask_survey_question_1:
+    - text: "{current_survey_question_1}"
+ 
+  utter_ask_survey_question_2:
+    - text: "{current_survey_question_2}"
+ 
+  utter_ask_survey_question_3:
+    - text: "{current_survey_question_3}"
+ 
+  utter_vector_no_results:
+    - text: "I couldn't find anything for that right now. Try rephrasing or asking about another topic."
+ 
+actions:
+  - action_bot_capabilities
+  - action_send_to_agent
+  - action_generate_dynamic_survey
+  - action_start_survey_collection
+  - action_submit_survey_responses
+  - action_upload_file
+  - action_analyze_image
+  - action_process_document
+  - action_live_agent
+  - action_out_of_scope
+  - action_reset_slots
+  - action_exit
+  - action_correct_info
+  - action_view_stored_info
+  - action_continue_or_exit
+  - action_generate_brochure
+  - action_create_dynamic_form
+  - action_contact_info_adaptive_card
+  - action_handle_contact_card_submission
+  - action_mcp_unified
+  - action_vector_search
+  - validate_info_form
+  - validate_survey_form
+  - action_generate_adaptive_card
+  - action_orchestrator_query
+  - action_process_leave_submission
+  
+forms:
+  info_form:
+    required_slots:
+      - person_name
+      - phone_number
+      - address
+ 
+  survey_form:
+    required_slots:
+      - survey_question_1
+      - survey_question_2
+      - survey_question_3
+ 
+session_config:
+  session_expiration_time: 60
+  carry_over_slots_to_new_session: true

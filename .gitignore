@@ -1,0 +1,13 @@
+__pycache__/
+*.py[cod]
+*.log
+.env
+venv/
+env/
+.DS_Store
+__MACOSX/
+data/app.db
+models/*.tar.gz
+uploads/
+.vscode/
+

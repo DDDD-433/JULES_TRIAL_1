@@ -1,0 +1,681 @@
+=============================================================================
+MCP UNIFIED ACTION - EVERYTHING YOU NEED FOR YOUR OTHER REPO
+=============================================================================
+
+This file contains ONLY the code needed to convert your separate MCP actions
+into a single unified action that routes to all tools automatically.
+
+=============================================================================
+PART 1: UPDATE shared_utils.py - Add MCPService Class
+=============================================================================
+
+Add this MCPService class to your shared_utils.py file:
+
+-------------------- CODE START: MCPService --------------------
+
+class MCPService:
+    """
+    Enhanced MCP Service that can dynamically handle new tools
+    without requiring code changes for each new tool
+    """
+
+    def __init__(
+        self,
+        web_search_func,
+        weather_search_func,
+        news_search_func,
+        leave_analyze_func,
+        leave_validate_func,
+        mcp_client,
+    ):
+        # Core tools
+        self.web_search = web_search_func
+        self.weather_search = weather_search_func
+        self.news_search = news_search_func
+        self._leave_analyze = leave_analyze_func
+        self._leave_validate = leave_validate_func
+        self.mcp_client = mcp_client
+
+        # Registry for additional tools
+        self._tool_registry = {}
+        self._tool_handlers = {}
+
+        # Register core tools
+        self._register_core_tools()
+   
+    def _register_core_tools(self):
+        """Register the core MCP tools with their handlers"""
+        self.register_tool(
+            "weather",
+            checker_func=self.mcp_client.should_use_weather,
+            handler_func=self._handle_weather,
+            description="Get weather information for a city"
+        )
+        
+        self.register_tool(
+            "news",
+            checker_func=self.mcp_client.should_use_news,
+            handler_func=self._handle_news,
+            description="Get news headlines or search for specific news"
+        )
+        
+        self.register_tool(
+            "web_search",
+            checker_func=self.mcp_client.should_use_web_search,
+            handler_func=self._handle_web_search,
+            description="Search the web for information"
+        )
+        
+        self.register_tool(
+            "leave_calculator",
+            checker_func=self.mcp_client.should_use_leave_calculator,
+            handler_func=self._handle_leave,
+            description="Analyze or validate leave requests"
+        )
+   
+    def register_tool(self, tool_name: str, checker_func, handler_func, description: str = ""):
+        """Register a new tool dynamically"""
+        self._tool_registry[tool_name] = {
+            'checker': checker_func,
+            'handler': handler_func,
+            'description': description
+        }
+        logger.info(f"Registered MCP tool: {tool_name}")
+   
+    def _handle_weather(self, user_question: str, context: Optional[Dict[str, Any]] = None) -> str:
+        """Handle weather queries"""
+        city = self.mcp_client.extract_city_from_query(user_question)
+        if not city:
+            return "Please specify a city name for weather information."
+        return self.weather_search(city)
+   
+    def _handle_news(self, user_question: str, context: Optional[Dict[str, Any]] = None) -> str:
+        """Handle news queries"""
+        is_headlines = self.mcp_client.is_general_news_request(user_question)
+        return self.news_search(user_question, is_headlines=is_headlines)
+   
+    def _handle_web_search(self, user_question: str, context: Optional[Dict[str, Any]] = None) -> str:
+        """Handle web search queries"""
+        return self.web_search(user_question)
+
+    def _handle_leave(self, user_question: str, context: Optional[Dict[str, Any]] = None):
+        """Handle leave calculator queries"""
+        ctx = context or {}
+        employee_id = ctx.get("employee_id")
+        
+        # Check if this is a validation request (has all required fields)
+        if (employee_id and 
+            ctx.get("start_date") and 
+            ctx.get("end_date") and 
+            ctx.get("leave_type")):
+            # Direct validation
+            return self._leave_validate({
+                "employee_id": employee_id,
+                "start_date": ctx["start_date"],
+                "end_date": ctx["end_date"],
+                "leave_type": ctx["leave_type"],
+            })
+        else:
+            # Analysis mode - extract dates from query
+            return self._leave_analyze(
+                query=user_question,
+                employee_id=employee_id
+            )
+
+    def leave_validate(self, payload: Dict[str, Any]) -> Dict[str, Any]:
+        """Public method for leave validation"""
+        return self._leave_validate(payload)
+   
+    def try_all_tools(self, user_question: str, context: Optional[Dict[str, Any]] = None):
+        """
+        Intelligently route user question to appropriate tool
+        Returns the result from the first matching tool, or None if no tool matches
+        """
+        logger.info(f"Trying all MCP tools for query: {user_question[:50]}...")
+        
+        for tool_name, tool_config in self._tool_registry.items():
+            try:
+                checker = tool_config['checker']
+                handler = tool_config['handler']
+                
+                if checker(user_question):
+                    logger.info(f"Tool '{tool_name}' matched the query")
+                    result = handler(user_question, context)
+                    if result:
+                        return result
+            except Exception as e:
+                logger.error(f"Error in tool '{tool_name}': {e}")
+                continue
+        
+        logger.warning("No MCP tool matched the query")
+        return None
+   
+    def list_available_tools(self) -> Dict[str, str]:
+        """List all registered tools and their descriptions"""
+        return {
+            name: config['description'] 
+            for name, config in self._tool_registry.items()
+        }
+   
+    def get_tool_info(self, tool_name: str) -> Optional[Dict]:
+        """Get information about a specific tool"""
+        return self._tool_registry.get(tool_name)
+
+-------------------- CODE END: MCPService --------------------
+
+
+=============================================================================
+PART 2: UPDATE shared_utils.py - Add get_mcp_service() to ServiceManager
+=============================================================================
+
+Add this method to your ServiceManager class:
+
+-------------------- CODE START: ServiceManager.get_mcp_service --------------------
+
+def get_mcp_service(self):
+    """Get or create MCP service instance"""
+    if 'mcp' not in self._services:
+        from mcp_utilities.client import (
+            run_web_search,
+            run_weather_search,
+            run_news_search,
+            run_leave_analysis,
+            run_leave_validation,
+            mcp_client,
+        )
+
+        self._services['mcp'] = MCPService(
+            web_search_func=run_web_search,
+            weather_search_func=run_weather_search,
+            news_search_func=run_news_search,
+            leave_analyze_func=run_leave_analysis,
+            leave_validate_func=run_leave_validation,
+            mcp_client=mcp_client,
+        )
+    return self._services['mcp']
+
+-------------------- CODE END: ServiceManager.get_mcp_service --------------------
+
+
+=============================================================================
+PART 3: CREATE/UPDATE actions/mcp_actions.py - Add ActionMCPUnified
+=============================================================================
+
+Add this unified action class to your mcp_actions.py:
+
+-------------------- CODE START: ActionMCPUnified --------------------
+
+import time
+from typing import Any, Dict, List, Optional, Text
+from rasa_sdk import Action, Tracker
+from rasa_sdk.executor import CollectingDispatcher
+from rasa_sdk.events import SlotSet
+from shared_utils import get_service_manager, MessageFormatter, logger
+
+
+def sanitize_employee_id(value: Any) -> Optional[str]:
+    """Extract only numeric characters from a potential employee identifier."""
+    if value is None:
+        return None
+    digits = "".join(ch for ch in str(value) if ch.isdigit())
+    return digits or None
+
+
+class ActionMCPUnified(Action):
+    """
+    Unified MCP action that intelligently routes to appropriate MCP tools
+    No need to create separate actions for each new MCP tool!
+    """
+    def __init__(self):
+        self.services = get_service_manager()
+   
+    def name(self) -> Text:
+        return "action_mcp_unified"
+   
+    def run(self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
+        try:
+            query = tracker.latest_message.get("text", "")
+            intent = tracker.latest_message.get("intent", {}).get("name", "")
+           
+            if len(query.strip()) < 2:
+                dispatcher.utter_message(text="Please provide more details for your request.")
+                return []
+
+            # Build context
+            context: Dict[str, Any] = {
+                "sender_id": tracker.sender_id,
+                "intent": intent,
+            }
+            metadata = tracker.latest_message.get("metadata")
+            if isinstance(metadata, dict):
+                context.update(metadata)
+
+            # Extract employee_id from multiple sources
+            slots = getattr(tracker, "slots", {})
+            potential_ids: List[Any] = []
+            if isinstance(metadata, dict):
+                potential_ids.extend([
+                    metadata.get("employee_id"),
+                    metadata.get("employeeId"),
+                ])
+            if isinstance(slots, dict):
+                potential_ids.append(slots.get("employee_id"))
+            potential_ids.append(tracker.sender_id)
+
+            sanitized_id = None
+            for candidate in potential_ids:
+                candidate_id = sanitize_employee_id(candidate)
+                if candidate_id:
+                    sanitized_id = candidate_id
+                    break
+
+            if sanitized_id:
+                context["employee_id"] = sanitized_id
+            else:
+                context.pop("employee_id", None)
+
+            # Let MCP service intelligently route to the right tool
+            result = self.services.get_mcp_service().try_all_tools(query, context=context)
+           
+            if result:
+                if isinstance(result, dict):
+                    result_type = result.get("type")
+                    if result_type == "card" and "payload" in result:
+                        dispatcher.utter_message(
+                            json_message={
+                                "payload": "adaptiveCard",
+                                "data": result["payload"],
+                                "metadata": result.get("metadata"),
+                            }
+                        )
+                        return []
+                    text_payload = result.get("text")
+                    if text_payload:
+                        dispatcher.utter_message(text=text_payload)
+                        return []
+                    dispatcher.utter_message(text=str(result))
+                else:
+                    dispatcher.utter_message(text=result)
+            else:
+                # Fallback based on detected intent
+                fallback_message = self._get_fallback_message(intent)
+                dispatcher.utter_message(text=fallback_message)
+               
+        except Exception as e:
+            logger.error(f"Error in MCP unified action: {e}")
+            dispatcher.utter_message(text="I'm having trouble processing your request right now. Please try again later.")
+       
+        return []
+   
+    def _get_fallback_message(self, intent: str) -> str:
+        """Provide intent-specific fallback messages"""
+        fallback_messages = {
+            "get_weather": "I couldn't get weather information. Please specify a city name.",
+            "get_news": "I couldn't fetch news right now. Please try again later.",
+            "web_search": "I couldn't search the web right now. Please try again later.",
+            "search_news": "I couldn't search for specific news. Please try again later.",
+            "leave_request": "I couldn't process your leave request. Please provide valid dates and leave type."
+        }
+        return fallback_messages.get(intent, "I couldn't process your request. Please try rephrasing.")
+
+
+class ActionProcessLeaveSubmission(Action):
+    """Handle leave submission from adaptive cards"""
+    def __init__(self):
+        self.services = get_service_manager()
+
+    def name(self) -> Text:
+        return "action_process_leave_submission"
+
+    def run(
+        self,
+        dispatcher: CollectingDispatcher,
+        tracker: Tracker,
+        domain: Dict[Text, Any],
+    ) -> List[Dict[Text, Any]]:
+        raw_metadata = tracker.latest_message.get("metadata")
+        metadata = raw_metadata if isinstance(raw_metadata, dict) else {}
+        payload = metadata.get("payload") if isinstance(metadata.get("payload"), dict) else metadata
+
+        employee_id_value = sanitize_employee_id(
+            payload.get("employee_id")
+            or payload.get("employeeId")
+            or metadata.get("employee_id")
+            or metadata.get("employeeId")
+        )
+
+        submission = {
+            "employee_id": employee_id_value,
+            "start_date": payload.get("start_date") or payload.get("startDate"),
+            "end_date": payload.get("end_date") or payload.get("endDate"),
+            "leave_type": payload.get("leave_type") or payload.get("leaveType"),
+        }
+
+        if not all(submission.values()):
+            dispatcher.utter_message(text="The leave submission is incomplete. Please provide a numeric employee ID along with the leave dates and leave type.")
+            return []
+
+        try:
+            result = self.services.get_mcp_service().leave_validate(submission)
+            if isinstance(result, dict):
+                if result.get("type") == "card" and "payload" in result:
+                    dispatcher.utter_message(
+                        json_message={
+                            "payload": "adaptiveCard",
+                            "data": result["payload"],
+                            "metadata": result.get("metadata"),
+                        }
+                    )
+                    return []
+                message = result.get("text") or result.get("message")
+                if message:
+                    dispatcher.utter_message(text=str(message))
+                    return []
+            dispatcher.utter_message(text=str(result))
+        except Exception as exc:
+            logger.error(f"Error processing leave submission: {exc}")
+            dispatcher.utter_message(text="I'm unable to validate your leave request right now. Please try again later.")
+        return []
+
+-------------------- CODE END: ActionMCPUnified --------------------
+
+
+=============================================================================
+PART 4: UPDATE data/domain.yml
+=============================================================================
+
+Replace your old actions list with this:
+
+-------------------- CODE START: domain.yml actions --------------------
+
+actions:
+  - action_mcp_unified              # ✅ NEW: Single unified action
+  - action_process_leave_submission # ✅ For adaptive card submissions
+
+  # ⚠️ REMOVE THESE OLD ACTIONS:
+  # - action_web_search
+  # - action_get_weather
+  # - action_get_news
+  # - action_search_news
+  # Keep them commented initially for safety, then remove after testing
+
+-------------------- CODE END: domain.yml actions --------------------
+
+
+=============================================================================
+PART 5: UPDATE data/nlu.yml
+=============================================================================
+
+Add this unified intent (combines all your tool intents):
+
+-------------------- CODE START: nlu.yml --------------------
+
+- intent: mcp_unified
+  examples: |
+    # Weather queries
+    - what's the weather in London
+    - weather in Paris
+    - how's the weather today
+    - is it raining in New York
+    - temperature in Tokyo
+    - London weather
+    - weather forecast for Berlin
+    - tell me the weather
+    - check weather in Mumbai
+    
+    # News queries
+    - show me the news
+    - latest headlines
+    - top news today
+    - what's happening in the world
+    - search news about AI
+    - find news on climate change
+    - breaking news
+    - news headlines
+    - current events
+    - what's in the news
+    
+    # Web search queries
+    - search for information about quantum computing
+    - find details about Python programming
+    - what is machine learning
+    - who invented the internet
+    - how does blockchain work
+    - look up information on renewable energy
+    - google something for me
+    - search the web for
+    - find information about
+    
+    # Leave requests
+    - I want to take leave
+    - apply for leave from Jan 15 to Jan 20
+    - sick leave tomorrow
+    - I need 3 days off next week
+    - vacation leave for a week
+    - check my leave balance
+    - annual leave from March 1st to March 10th
+    - I want flexi leave on Friday
+    - requesting unpaid leave for 2 days
+    - I'll be on sick leave today
+    - apply for sick leave
+    - I need time off
+
+# ⚠️ You can keep your old intents for backward compatibility OR remove them:
+# - intent: get_weather
+# - intent: get_news
+# - intent: web_search
+# - intent: search_news
+# - intent: leave_request
+
+-------------------- CODE END: nlu.yml --------------------
+
+
+=============================================================================
+PART 6: UPDATE data/stories.yml
+=============================================================================
+
+Replace your old tool-specific stories with this unified story:
+
+-------------------- CODE START: stories.yml --------------------
+
+- story: unified mcp tool usage
+  steps:
+  - intent: mcp_unified
+  - action: action_mcp_unified
+
+- story: leave request flow
+  steps:
+  - intent: leave_request  # If you keep this intent
+  - action: action_mcp_unified
+
+- story: leave submission from card
+  steps:
+  - action: action_process_leave_submission
+
+# ⚠️ REMOVE OLD STORIES LIKE:
+# - story: weather query
+#   steps:
+#   - intent: get_weather
+#   - action: action_get_weather
+# 
+# - story: news query
+#   steps:
+#   - intent: get_news
+#   - action: action_get_news
+# etc.
+
+-------------------- CODE END: stories.yml --------------------
+
+
+=============================================================================
+PART 7: OPTIONAL - CREATE data/rules.yml (Recommended)
+=============================================================================
+
+Add these rules for consistent behavior:
+
+-------------------- CODE START: rules.yml --------------------
+
+version: "3.1"
+
+rules:
+- rule: MCP unified tool routing
+  steps:
+  - intent: mcp_unified
+  - action: action_mcp_unified
+
+- rule: Leave request routing
+  steps:
+  - intent: leave_request
+  - action: action_mcp_unified
+
+- rule: Process leave card submission
+  steps:
+  - action: action_process_leave_submission
+
+-------------------- CODE END: rules.yml --------------------
+
+
+=============================================================================
+PART 8: VERIFY YOUR client.py HAS THESE CHECKER FUNCTIONS
+=============================================================================
+
+Make sure your mcp_utilities/client.py has these methods:
+
+-------------------- CODE START: Required client.py methods --------------------
+
+class MCPClient:
+    # ... existing code ...
+    
+    def should_use_web_search(self, query: str) -> bool:
+        """Check if query requires web search"""
+        query_lower = query.lower()
+        search_keywords = [
+            'search', 'find', 'look up', 'google', 'what is',
+            'who is', 'where is', 'when is', 'how to'
+        ]
+        if self.should_use_weather(query) or self.should_use_news(query) or self.should_use_leave_calculator(query):
+            return False
+        return any(keyword in query_lower for keyword in search_keywords)
+    
+    def should_use_weather(self, query: str) -> bool:
+        """Check if query is about weather"""
+        query_lower = query.lower()
+        weather_keywords = [
+            'weather', 'temperature', 'forecast', 'rain', 'snow',
+            'sunny', 'cloudy', 'humid', 'climate', 'hot', 'cold'
+        ]
+        return any(keyword in query_lower for keyword in weather_keywords)
+    
+    def should_use_news(self, query: str) -> bool:
+        """Check if query is about news"""
+        query_lower = query.lower()
+        news_keywords = [
+            'news', 'headline', 'headlines', 'latest news',
+            'breaking news', 'top stories', 'current events'
+        ]
+        return any(keyword in query_lower for keyword in news_keywords)
+    
+    def should_use_leave_calculator(self, query: str) -> bool:
+        """Check if query is about leave requests"""
+        query_lower = query.lower()
+        leave_keywords = [
+            'leave', 'vacation', 'holiday', 'time off', 'pto',
+            'sick leave', 'annual leave', 'flexi leave', 'unpaid leave',
+            'days off', 'absence', 'off work'
+        ]
+        return any(keyword in query_lower for keyword in leave_keywords)
+    
+    def is_general_news_request(self, query: str) -> bool:
+        """Check if user wants general headlines vs specific news search"""
+        query_lower = query.lower()
+        headline_indicators = [
+            'headlines', 'top news', 'latest news', 'news today',
+            'what\'s happening', 'current news'
+        ]
+        return any(indicator in query_lower for indicator in headline_indicators)
+    
+    def extract_city_from_query(self, query: str) -> Optional[str]:
+        """Extract city name from weather query"""
+        import re
+        query_lower = query.lower()
+        
+        patterns = [
+            r'weather in (.+)',
+            r'(.+) weather',
+            r'forecast for (.+)',
+            r'(.+) forecast',
+            r'temperature in (.+)',
+        ]
+        
+        for pattern in patterns:
+            match = re.search(pattern, query_lower)
+            if match:
+                city = match.group(1).strip()
+                city = re.sub(r'\b(the|a|an)\b', '', city).strip()
+                if city:
+                    return city.title()
+        
+        words = query.split()
+        if words:
+            return words[-1].strip('?,. ').title()
+        
+        return None
+
+-------------------- CODE END: Required client.py methods --------------------
+
+
+=============================================================================
+MIGRATION STEPS
+=============================================================================
+
+1. ✅ Copy PART 1 (MCPService class) → shared_utils.py
+2. ✅ Copy PART 2 (get_mcp_service method) → shared_utils.py ServiceManager class
+3. ✅ Copy PART 3 (ActionMCPUnified) → actions/mcp_actions.py
+4. ✅ Update PART 4 (domain.yml) → Remove old actions
+5. ✅ Update PART 5 (nlu.yml) → Add mcp_unified intent
+6. ✅ Update PART 6 (stories.yml) → Replace old stories
+7. ✅ Create PART 7 (rules.yml) → Optional but recommended
+8. ✅ Verify PART 8 (client.py checker functions) → Should already exist
+
+9. Train RASA:
+   rasa train
+
+10. Test:
+   rasa shell
+   
+   Try these queries:
+   - "What's the weather in London?"
+   - "Show me the news"
+   - "Search for Python tutorials"
+   - "I want leave tomorrow"
+
+11. After confirming everything works, remove old actions from domain.yml
+
+=============================================================================
+KEY BENEFITS
+=============================================================================
+
+✅ Single Action: Only action_mcp_unified handles ALL tools
+✅ Auto-Routing: Intelligently selects the right tool via checker functions
+✅ Extensible: Add new tools by registering them in MCPService
+✅ Clean Intents: Just mcp_unified intent for all queries
+✅ Maintainable: No need to create new actions for new tools
+
+=============================================================================
+TROUBLESHOOTING
+=============================================================================
+
+If queries aren't routing correctly:
+1. Check that client.py has all checker functions (PART 8)
+2. Verify MCPService._register_core_tools() is being called
+3. Check logs for "Tool 'X' matched the query" messages
+4. Ensure mcp_unified intent has enough training examples
+
+If you get import errors:
+1. Verify client.py exports: run_web_search, run_weather_search, etc.
+2. Check that mcp_client is instantiated in client.py
+3. Ensure ServiceManager.get_mcp_service() has correct imports
+
+=============================================================================
+END OF FILE
+=============================================================================

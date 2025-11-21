@@ -1,0 +1,104 @@
+version: "3.1"
+ 
+stories:
+- story: Complete info collection with continue
+  steps:
+  - intent: greet
+  - action: utter_greet
+  - intent: collect_info
+  - action: action_reset_slots
+  - action: info_form
+  - active_loop: info_form
+  - intent: inform
+    entities:
+    - person_name: "John Smith"
+  - action: info_form
+  - intent: inform
+    entities:
+    - phone_number: "555-123-4567"
+  - action: info_form
+  - intent: inform
+  - slot_was_set:
+    - address: "123 Main St"
+  - action: info_form
+  - active_loop: null
+  - action: utter_submit
+  - action: action_send_to_agent
+  - action: utter_ask_continue
+  - intent: affirm
+  - action: action_continue_or_exit
+ 
+- story: Complete info collection with exit
+  steps:
+  - intent: collect_info
+  - action: action_reset_slots
+  - action: info_form
+  - active_loop: info_form
+  - intent: inform
+    entities:
+    - person_name: "Jane Doe"
+  - action: info_form
+  - intent: inform
+    entities:
+    - phone_number: "9876543210"
+  - action: info_form
+  - intent: inform
+  - slot_was_set:
+    - address: "456 Oak Ave"
+  - action: info_form
+  - active_loop: null
+  - action: utter_submit
+  - action: action_send_to_agent
+  - action: utter_ask_continue
+  - intent: deny
+  - action: action_exit
+ 
+- story: Direct greet to info collection
+  steps:
+  - intent: greet
+  - action: utter_greet
+  - intent: affirm
+  - action: action_reset_slots
+  - action: info_form
+  - active_loop: info_form
+ 
+- story: Out of scope to live agent
+  steps:
+  - intent: out_of_scope
+  - action: action_out_of_scope
+ 
+- story: Out of scope then info collection
+  steps:
+  - intent: out_of_scope
+  - action: action_out_of_scope
+  - intent: collect_info
+  - action: action_reset_slots
+  - action: info_form
+  - active_loop: info_form
+ 
+- story: Goodbye flow
+  steps:
+  - intent: goodbye
+  - action: action_exit
+ 
+- story: Bot challenge
+  steps:
+  - intent: bot_challenge
+  - action: utter_iamabot
+ 
+- story: Fallback to live agent
+  steps:
+  - intent: nlu_fallback
+  - action: action_out_of_scope
+ 
+- story: Direct correction request
+  steps:
+  - intent: correct_info
+  - action: action_correct_info
+
+- story: Leave request flow
+  steps:
+  - intent: request_leave
+  - action: action_mcp_unified
+  - intent: submit_leave_form
+  - action: action_process_leave_submission
